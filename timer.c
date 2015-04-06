@@ -25,14 +25,14 @@ void TIntInit(void);
 void TimerInit(){
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 	TIM_TimeBaseInitTypeDef TInit;
-	TInit.TIM_Prescaler = 8000;	//1Г¬Г±
+	TInit.TIM_Prescaler = 8000;	//1мс
 	TInit.TIM_CounterMode = TIM_CounterMode_Up;
 	TInit.TIM_Period = 1000; 	//1c
 	TInit.TIM_ClockDivision = TIM_CKD_DIV1;
 	TInit.TIM_RepetitionCounter = 0;
 	TIM_TimeBaseInit(TIM2, &TInit);
 	TIM_Cmd(TIM2, ENABLE);
-	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE); // Г‚ГЄГ«ГѕГ·ГЁГІГј ГЇГ°ГҐГ°Г»ГўГ Г­ГЁГҐ ГЇГ°ГЁ Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГЁ ГІГ Г©Г¬ГҐГ°Г  TIM2
+	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE); // Включить прерывание при обновлении таймера TIM2
 	TIntInit();
 
 	//Output Compare 1
@@ -40,10 +40,10 @@ void TimerInit(){
 	OC1Init.TIM_OCMode = TIM_OCMode_Timing;
 	OC1Init.TIM_OutputState = TIM_OutputState_Enable;
 	OC1Init.TIM_OCNPolarity = TIM_OCPolarity_High;
-	OC1Init.TIM_Pulse = 200;	//ГђГҐГЈГЁГ±ГІГ° Г±Г®ГўГЇГ Г¤ГҐГ­ГЁГї
+	OC1Init.TIM_Pulse = 200;	//Регистр совпадения
 	TIM_OC1Init(TIM2, &OC1Init);
 	TIM_OC1PreloadConfig(TIM2, TIM_OCPreload_Disable);
-	TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);	// Г‚ГЄГ«ГѕГ·ГЁГІГј ГЇГ°ГҐГ°Г»ГўГ Г­ГЁГҐ ГЇГ°ГЁ Г±Г®ГўГЇГ Г¤ГҐГ­ГЁГЁ
+	TIM_ITConfig(TIM2, TIM_IT_CC1, ENABLE);	// Включить прерывание при совпадении
 
 }
 
@@ -57,11 +57,11 @@ void TIntInit(){
 
 
 void TIM2_IRQHandler() {
-	if (TIM_GetITStatus(TIM2, TIM_IT_Update) == SET){ //ГЋГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ
+	if (TIM_GetITStatus(TIM2, TIM_IT_Update) == SET){ //Обновление
 		GPIO_SetBits(GPIOA, GPIO_Pin_0);
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 	}
-	if (TIM_GetITStatus(TIM2, TIM_IT_CC1) == SET){	//Г‘Г®ГўГЇГ Г¤ГҐГ­ГЁГҐ
+	if (TIM_GetITStatus(TIM2, TIM_IT_CC1) == SET){	//Совпадение
 		GPIO_ResetBits(GPIOA, GPIO_Pin_0);
 		TIM_ClearITPendingBit(TIM2, TIM_IT_CC1);
 	}
